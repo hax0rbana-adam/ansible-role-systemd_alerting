@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Adam
+  description: Systemd alerting - Proactive notifications when a service fails
+  license: MIT
+  company: none
+  min_ansible_version: "2.10"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+  galaxy_tags:
+    - systemd
+    - notifications
+    - visibility
+  namespace: hax0rbana_adam
+  role_name: systemd_alerting
+
+dependencies: []

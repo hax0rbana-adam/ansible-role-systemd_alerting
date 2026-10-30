@@ -1,0 +1,9 @@
+[Unit]
+Description=Send email notification of unit failure
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo "%i" | grep "notify-email@notify-email@" || /usr/bin/systemctl status %i | /usr/bin/sendemail -f "{{systemd_notify_from}}" -u "[SYSTEMD_%i] Fail" -t {{systemd_notify_email}} -s {{systemd_notify_server}}'
+
+[Install]
+WantedBy=multi-user.target

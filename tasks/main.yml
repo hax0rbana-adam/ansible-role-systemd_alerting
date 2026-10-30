@@ -1,0 +1,40 @@
+# This role sets up all systemd services to email the admin upon failure
+- name: Installing the standard sendemail package to send emails from scripts
+  ansible.builtin.package:
+    name: sendemail
+  when: ansible_distribution_major_version > 12 or ansible_architecture == "aarch64"
+  # backports repo doesn't support armhf (aarch64), so we use the standard repo
+
+- name: Setting up backports for bookworm to get patch from backports
+  when: ansible_distribution_major_version == 12 and ansible_architecture != "aarch64"
+  block:
+    - name: Adding backports repo to apt sources
+      ansible.builtin.apt_repository:
+        repo: deb http://deb.debian.org/debian bookworm-backports main
+        state: present
+    - name: Get the patched version of sendemail from backports
+      ansible.builtin.apt:
+        name: sendemail
+        default_release: bookworm-backports
+
+- name: Deploying service to do the email notifications
+  ansible.builtin.template:
+    src: templates/notify-email.service.j2
+    dest: /etc/systemd/system/notify-email@.service
+    mode: "644"
+  notify: Reload systemd service files
+
+- name: Making directory to override the OnFailure of all services
+  ansible.builtin.file:
+    path: /etc/systemd/system/service.d
+    state: directory
+    mode: "755"
+
+- name: Creating override file to notify an admin on service failure
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      OnFailure=notify-email@%N.service
+    dest: /etc/systemd/system/service.d/10-all.conf
+    mode: "644"
+  notify: Reload systemd service files

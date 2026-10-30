@@ -1,0 +1,3 @@
+systemd_notify_email: admin@{{ ansible_domain }}
+systemd_notify_from: NOREPLY@{{ ansible_domain }}
+systemd_notify_server: mail.{{ ansible_domain }}
